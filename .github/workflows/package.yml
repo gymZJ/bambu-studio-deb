@@ -121,9 +121,9 @@ jobs:
             export DEBIAN_FRONTEND=noninteractive
             apt-get update
             apt-get install -y --no-install-recommends /dist/*.deb desktop-file-utils
+            set -x
             test "$(command -v bambu-studio)" = /usr/bin/bambu-studio
-            test -s /usr/share/doc/bambu-studio/LICENSE
-            test -s /usr/share/doc/bambu-studio/copyright
+            grep -q "GNU AFFERO GENERAL PUBLIC LICENSE" /usr/share/doc/bambu-studio/copyright
             desktop-file-validate /usr/share/applications/BambuStudio.desktop
             useradd -m -s /bin/bash coplo-test
             runuser -u coplo-test -- bambu-studio --help > /tmp/help.txt

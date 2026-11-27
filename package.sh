@@ -63,11 +63,13 @@ find "$PKGROOT/usr/share/icons" -type f -exec chmod 0644 {} +
 # Avoid duplicating the installed desktop integration in the private app tree.
 rm -rf "$APPROOT/usr/share/icons" "$APPROOT/BambuStudio.desktop"
 
-gh api "repos/$UPSTREAM_REPO/contents/LICENSE?ref=$TAG" --jq .content | tr -d '\n' | base64 --decode > "$DOCROOT/LICENSE"
-test -s "$DOCROOT/LICENSE"
+gh api "repos/$UPSTREAM_REPO/contents/LICENSE?ref=$TAG" --jq .content | tr -d '\n' | base64 --decode > "$WORK/LICENSE"
+grep -q 'GNU AFFERO GENERAL PUBLIC LICENSE' "$WORK/LICENSE"
+# Keep the full license text in copyright: minimized Ubuntu images (and
+# dpkg path-exclude rules in general) drop everything else under /usr/share/doc.
 cat > "$DOCROOT/copyright" <<COPYRIGHT
 Bambu Studio is distributed under the GNU Affero General Public License,
-version 3. See /usr/share/doc/$PACKAGE/LICENSE.
+version 3. The full license text is included at the end of this file.
 
 Upstream release: https://github.com/$UPSTREAM_REPO/releases/tag/$TAG
 Corresponding upstream source and build scripts:
@@ -78,7 +80,11 @@ The upstream binary and its bundled resources are redistributed unmodified;
 the Coplo packaging scripts and desktop integration are available at
  https://github.com/gymZJ/bambu-studio-deb
 Bundled third-party components retain their respective upstream licenses.
+
+License text (https://github.com/$UPSTREAM_REPO/blob/$TAG/LICENSE):
+
 COPYRIGHT
+cat "$WORK/LICENSE" >> "$DOCROOT/copyright"
 chmod 0644 "$DOCROOT/"*
 
 installed_size="$(du -sk "$PKGROOT/usr" | awk '{print $1}')"
